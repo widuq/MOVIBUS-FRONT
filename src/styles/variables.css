@@ -1,0 +1,46 @@
+:root { 
+  /* --- MARCA MOVIBUS --- */ 
+  --color-brand-primary: #4cb86c;     /* Color principal (botón + Nuevo) */
+  --color-brand-light: #1e88e5;       /* Azul brillante de los botones */
+  --color-brand-hover: #1565c0;       /* Azul más profundo para hover */
+  --btn-search-bg: #1565c0;           /* Fondo botón Búsqueda avanzada */
+  --btn-search-text: #ffffff;         /* Texto botón Búsqueda avanzada */
+
+  /* --- FONDOS --- */ 
+  --bg-main: #f2f2f2;                 /* Fondo general de la app */ 
+  --bg-sidebar: #ffffff;              /* Fondo del sidebar */ 
+  --bg-modal: #ffffff;                /* Fondo de modales */ 
+  --bg-card: #ffffff;                 /* Fondo de tarjetas y tabla */ 
+  --bg-input: #fdfdfd;                /* Fondo de campos de texto */ 
+  --bg-header-table: #b84c4c;         /* Color del encabezado de la tabla */ 
+  --bg-hover: #f0f0f0;                /* Color de fila al hacer hover */ 
+  --bg-overlay: rgba(0, 0, 0, 0.4);   /* Overlay de modales */ 
+
+  /* --- BORDES --- */ 
+  --border-subtle: #e0e0e0;           /* Bordes generales */ 
+  --border-focus: #1e88e5;            /* Borde al enfocar un input */ 
+
+  /* --- TEXTO --- */ 
+  --text-bright: #333333;             /* Títulos */ 
+  --text-normal: #000000;             /* Texto de cuerpo tabla*/ 
+  --text-muted: #020000;              /* Encabezados tabla */ 
+  --text-label: #444444;              /* Etiquetas de formulario */ 
+  --text-error: #d32f2f;              /* Color de error y botón eliminar */ 
+  --text-hint: #050505;               /* Texto de ayuda */ 
+  --text-sub-monospace: #666666;      /* Texto monoespaciado secundario */
+
+  /* --- TABLA --- */
+  --dt-border: #e0e0e0;               /* Borde del wrapper de la tabla */
+  --dt-th-color: #f8f6f6;             /* Color de texto de encabezados th */
+  --dt-td-color: #030000;             /* Color de texto de celdas td */
+  --dt-row-border: #e0e0e0;           /* Borde entre filas */
+
+  /* --- BOTONES DE ACCIÓN (Editar / Eliminar) --- */
+  --btn-editar-bg: #1e88e5;           /* Fondo botón Editar */
+  --btn-editar-text: #ffffff;         /* Texto botón Editar */
+  --btn-eliminar-bg: #d32f2f;         /* Fondo botón Eliminar */
+  --btn-eliminar-text: #ffffff;       /* Texto botón Eliminar */
+
+  /* --- SOMBRAS --- */ 
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08); /* Sombra general */ 
+}
