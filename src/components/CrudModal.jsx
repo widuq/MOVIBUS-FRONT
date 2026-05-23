@@ -26,60 +26,65 @@ export default function CrudModal({
         <div className="modal-body">
           <div className="form-grid">
 
-            {columnas.map(col => (
-              <div className="form-field" key={col.key}>
+            {columnas
+              // 1. MEJORA: Oculta automáticamente del formulario las variables de texto plano de la tabla
+              .filter(col => !col.key.startsWith('_')) 
+              .map(col => (
+                <div className="form-field" key={col.key}>
 
-                <label>
-                  {col.label}
+                  <label>
+                    {col.label}
 
-                  {col.requerido && (
-                    <span className="required"> *</span>
-                  )}
-                </label>
+                    {col.requerido && (
+                      <span className="required"> *</span>
+                    )}
+                  </label>
 
-                {col.tipo === 'select' ? (
+                  {col.tipo === 'select' ? (
 
-                  <select
-                    name={col.key}
-                    value={form[col.key] ?? ''}
-                    onChange={onChange}
-                    disabled={
-                      col.soloLectura &&
-                      titulo === 'Editar Registro'
-                    }
-                  >
-                    <option value="">
-                      — Selecciona —
-                    </option>
-
-                    {col.opciones?.map(op => (
-                      <option
-                        key={op.value}
-                        value={op.value}
-                      >
-                        {op.label}
+                    <select
+                      name={col.key}
+                      // 2. MEJORA: Forzamos el valor actual a String para asegurar compatibilidad estricta
+                      value={form[col.key] !== undefined && form[col.key] !== null ? String(form[col.key]) : ''}
+                      onChange={onChange}
+                      disabled={
+                        col.soloLectura &&
+                        titulo === 'Editar Registro'
+                      }
+                    >
+                      <option value="">
+                        — Selecciona —
                       </option>
-                    ))}
-                  </select>
 
-                ) : (
+                      {col.opciones?.map(op => (
+                        <option
+                          key={op.value}
+                          // 3. MEJORA: Forzamos el valor de la opción a String para que coincida perfectamente
+                          value={String(op.value)}
+                        >
+                          {op.label}
+                        </option>
+                      ))}
+                    </select>
 
-                  <input
-                    type={col.tipo || 'text'}
-                    name={col.key}
-                    value={form[col.key] ?? ''}
-                    onChange={onChange}
-                    disabled={
-                      col.soloLectura &&
-                      titulo === 'Editar Registro'
-                    }
-                    placeholder={col.label}
-                  />
+                  ) : (
 
-                )}
+                    <input
+                      type={col.tipo || 'text'}
+                      name={col.key}
+                      value={form[col.key] ?? ''}
+                      onChange={onChange}
+                      disabled={
+                        col.soloLectura &&
+                        titulo === 'Editar Registro'
+                      }
+                      placeholder={col.label}
+                    />
 
-              </div>
-            ))}
+                  )}
+
+                </div>
+              ))}
 
           </div>
         </div>

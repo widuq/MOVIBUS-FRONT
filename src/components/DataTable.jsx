@@ -19,13 +19,20 @@ export default function DataTable({ columnas, filas, onEditar, onEliminar, carga
         <tbody>
           {filas.map((fila, i) => (
             <tr key={fila.id ?? i}>
-              {columnas.map(col => (
-                <td key={col.key}>
-                  {fila[col.key] !== undefined && fila[col.key] !== null
-                    ? String(fila[col.key])
-                    : '—'}
-                </td>
-              ))}
+              {columnas.map(col => {
+                // 1. Validamos si la columna cuenta con una función para aplanar/formatear el texto
+                const valorCelda = col.aplanar 
+                  ? col.aplanar(fila) 
+                  : fila[col.key];
+
+                return (
+                  <td key={col.key}>
+                    {valorCelda !== undefined && valorCelda !== null
+                      ? String(valorCelda)
+                      : '—'}
+                  </td>
+                )
+              })}
               <td className="dt-acciones">
                 <button className="btn-editar" onClick={() => onEditar(fila)}>Editar</button>
                 <button className="btn-eliminar" onClick={() => onEliminar(fila)}>Eliminar</button>

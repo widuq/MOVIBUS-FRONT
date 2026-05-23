@@ -1,3 +1,6 @@
+/* ==========================================================================
+   ESTRUCTURA PRINCIPAL DE LA SIDEBAR
+   ========================================================================== */
 .sidebar {
   width: 220px;
   min-height: 100vh;
@@ -8,12 +11,29 @@
   flex-shrink: 0;
 }
 
+/* Unificación y limpieza del logo */
 .sidebar-logo {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 24px 20px 20px;
+  padding: 20px 0;
+  gap: 0;
+  position: relative;
+  bottom: 20px;
   border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebar-logo-img {
+  width: 220px;
+  height: auto;
+  object-fit: contain;
+}
+
+.sidebar-logo-texto {
+  width: 230px;
+  object-fit: contain;
+  position: absolute;
+  bottom: -60px;  /* Ajusta este valor para subir o bajar el texto */
 }
 
 .sidebar-icon { 
@@ -27,28 +47,75 @@
   letter-spacing: 0.5px;
 }
 
+/* ==========================================================================
+   NAVEGACIÓN Y SECCIONES DESPLEGABLES
+   ========================================================================== */
 .sidebar-nav { 
   padding: 16px 0; 
   flex: 1; 
   overflow-y: auto; 
 }
 
-.sidebar-section-label {
-  font-size: 0.68rem;
+/* Contenedor para cada grupo (Tablas, Consultas, Reportes) */
+.sidebar-section {
+  margin-bottom: 8px;
+}
+
+/* Botón disparador que abre/cierra el menú (Hereda el estilo de tu label original) */
+.sidebar-section-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  
+  /* Tus estilos originales del label */
+  font-size: 0.9rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-label);
-  padding: 0 20px 8px;
+  padding: 10px 20px;
   margin: 0;
+  text-align: left;
+  transition: color 0.2s ease;
 }
 
-.sidebar-nav ul {
+.sidebar-section-trigger:hover {
+  color: var(--text-bright);
+}
+
+/* Icono de la flecha indicadora */
+.sidebar-section-trigger .arrow {
+  font-size: 0.6rem;
+  display: inline-block;
+  transform: rotate(0deg);
+  transition: transform 0.2s ease;
+}
+
+/* Cuando el menú esté abierto, la flecha gira hacia arriba */
+.sidebar-section-trigger.abierto .arrow {
+  transform: rotate(180deg);
+}
+
+/* ==========================================================================
+   LISTAS Y ELEMENTOS INTERNOS (SUBMENÚS)
+   ========================================================================== */
+.sidebar-nav ul, 
+.sidebar-dropdown-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
+/* Agrega una ligera sangría hacia la derecha a los hijos desplegados */
+.sidebar-dropdown-list {
+  padding-left: 8px; 
+}
+
+/* Botones de las opciones finales (Viajes, Incidentes, etc.) */
 .sidebar-item {
   width: 100%;
   background: none;
@@ -67,32 +134,10 @@
   color: var(--text-bright);
 }
 
+/* Estado activo cuando la ruta/tabla está seleccionada */
 .sidebar-item.activo {
   background: var(--bg-hover);
   color: var(--text-active);
   border-left-color: var(--text-active);
   font-weight: 600;
-}
-
-
-.sidebar-logo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px 0;
-  gap: 0;
-  position: relative;
-}
-
-.sidebar-logo-img {
-  width: 220px;
-  height: auto;
-  object-fit: contain;
-}
-
-.sidebar-logo-texto {
-  width: 230px;
-  object-fit: contain;
-  position: absolute;
-  bottom: -60px;  /* ajusta este valor para subir o bajar el texto */
 }
