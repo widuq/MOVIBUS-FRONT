@@ -4,9 +4,7 @@ import Sidebar from '../components/Sidebar'
 import TablaPage from './TablaPage'
 import { tablasConfig, listaTablas } from '../config/tablasConfig'
 import '../App.css'
-import ReportesSimples from './ReportesSimples'
-import ReportesIntermedios from './ReportesIntermedios'
-import ReportesAvanzados from './ReportesAvanzados'
+import Reportes from './Reportes' // Import único del componente unificado
 
 export default function AdminDashboard({ usuario, onLogout }) {
   const [tablaActiva, setTablaActiva] = useState(listaTablas[0].key)
@@ -14,14 +12,10 @@ export default function AdminDashboard({ usuario, onLogout }) {
   // 1. Lógica condicional para renderizar el cuerpo de la aplicación sin romperla
   const renderContenido = () => {
     switch (tablaActiva) {
-      case 'reporte-simple':
-        return <ReportesSimples />
-      case 'reporte-intermedio':
-        return <ReportesIntermedios />
-      case 'reporte-avanzado':
-        return <ReportesAvanzados />
+      case 'reportes':
+        return <Reportes />
       default:
-        // Si no es un reporte, busca de manera segura la configuración del CRUD original
+        // Si no es el panel de reportes, busca la configuración del CRUD original
         const configTabla = tablasConfig[tablaActiva]
         return <TablaPage key={tablaActiva} configTabla={configTabla} />
     }
@@ -29,27 +23,11 @@ export default function AdminDashboard({ usuario, onLogout }) {
 
   // 2. Lógica condicional para renderizar el encabezado dinámicamente
   const renderHeader = () => {
-    if (tablaActiva === 'reporte-simple') {
+    if (tablaActiva === 'reportes') {
       return (
         <>
-          <h1 className="app-titulo">Reportes Simples</h1>
-          <span className="app-subtitulo">/reportes/simples</span>
-        </>
-      )
-    }
-    if (tablaActiva === 'reporte-intermedio') {
-      return (
-        <>
-          <h1 className="app-titulo">Reportes Intermedios</h1>
-          <span className="app-subtitulo">/reportes/intermedios</span>
-        </>
-      )
-    }
-    if (tablaActiva === 'reporte-avanzado') {
-      return (
-        <>
-          <h1 className="app-titulo">Reportes Avanzados</h1>
-          <span className="app-subtitulo">/reportes/avanzados</span>
+          <h1 className="app-titulo">Reportes del Sistema</h1>
+          <span className="app-subtitulo">/reportes</span>
         </>
       )
     }

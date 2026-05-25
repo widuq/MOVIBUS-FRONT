@@ -469,13 +469,14 @@ administradores: {
     pk: 'id',
 
     columnas: [
-        { key: 'id', label: 'ID', tipo: 'number' },
+        { key: 'id', label: 'ID (Cédula)', tipo: 'number' },
         { key: 'primer_nombre', label: 'PRIMER NOMBRE', tipo: 'text' },
         { key: 'segundo_nombre', label: 'SEGUNDO NOMBRE', tipo: 'text' },
         { key: 'primer_apellido', label: 'PRIMER APELLIDO', tipo: 'text' },
         { key: 'segundo_apellido', label: 'SEGUNDO APELLIDO', tipo: 'text' },
         { key: 'correo', label: 'CORREO', tipo: 'text' },
         { key: 'username', label: 'USERNAME', tipo: 'text' },
+        { key: 'password', label: 'CONTRASEÑA', tipo: 'text' }, // Añadido para la creación
         { key: 'cargo', label: 'CARGO', tipo: 'text' },
         { key: 'codigo_nivel_permiso', label: 'ID PERMISO', tipo: 'number' },
         { key: '_nivel_permiso_txt', label: 'NIVEL PERMISO', tipo: 'text', soloLectura: true },
@@ -490,6 +491,7 @@ administradores: {
         segundo_apellido: a.persona?.segundoApellido || '',
         correo: a.persona?.correo || '',
         username: a.persona?.username || '',
+        password: '', // No se expone por seguridad en lecturas
         cargo: a.cargo || '',
         codigo_nivel_permiso: a.nivelPermiso?.codigo || '', 
         _nivel_permiso_txt: a.nivelPermiso?.nombre || a.nivelPermiso?.descripcion || '',
@@ -500,11 +502,12 @@ administradores: {
         id: Number(form.id),
         persona: {
             primerNombre: form.primer_nombre,
-            segundoNombre: form.segundo_nombre,
+            segundoNombre: form.segundo_nombre || '',
             primerApellido: form.primer_apellido,
             segundoApellido: form.segundo_apellido,
             correo: form.correo,
-            username: form.username
+            username: form.username,
+            password: form.password || 'MoviBusAdmin2026*' // Contraseña temporal por defecto si no se digita
         },
         cargo: form.cargo,
         codigoNivelPermiso: Number(form.codigo_nivel_permiso),

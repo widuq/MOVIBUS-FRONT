@@ -68,26 +68,10 @@ export default function Sidebar({ tablaActiva, onSeleccionar }) {
             <ul className="sidebar-dropdown-list">
               <li>
                 <button 
-                  className={`sidebar-item ${tablaActiva === 'reporte-simple' ? 'activo' : ''}`}
-                  onClick={() => onSeleccionar('reporte-simple')}
+                  className={`sidebar-item ${tablaActiva === 'reportes' ? 'activo' : ''}`}
+                  onClick={() => onSeleccionar('reportes')}
                 >
-                  Reportes Simples
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={`sidebar-item ${tablaActiva === 'reporte-intermedio' ? 'activo' : ''}`}
-                  onClick={() => onSeleccionar('reporte-intermedio')}
-                >
-                  Reportes Intermedios
-                </button>
-              </li>
-              <li>
-                <button 
-                  className={`sidebar-item ${tablaActiva === 'reporte-avanzado' ? 'activo' : ''}`}
-                  onClick={() => onSeleccionar('reporte-avanzado')}
-                >
-                  Reportes Avanzados
+                  Generar Reportes
                 </button>
               </li>
             </ul>
