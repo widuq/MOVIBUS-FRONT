@@ -19,18 +19,76 @@ function formVacio(columnas) {
   )
 }
 
-export default function TablaPage({ configTabla }) {
-  const { endpoint, columnas = [], pk, normalizar, desnormalizar } = configTabla
+const ENDPOINTS_SELECTS = {
+  codigo_marca: { url: '/marcas', propId: 'codigo', propLabel: 'nombre' },
+  codigo_estado_vehiculo: { url: '/estados-vehiculo', propId: 'codigo', propLabel: 'nombre' },
+  codigo_tipo_combustible: { url: '/tipos-combustible', propId: 'codigo', propLabel: 'nombre' },
+};
 
-  const [filas, setFilas] = useState([])
+export default function TablaPage({ configTabla }) {
+  const { endpoint, columnas: columnasOriginales = [], pk, normalizar, desnormalizar } = configTabla
+
+  const [columnasDinamicas, setColumnasDinamicas] = useState(columnasOriginales)
+  const [filasRaw, setFilasRaw] = useState([]) // 👈 NUEVO: Guardamos los datos puros del backend separados
   const [cargando, setCargando] = useState(true)
   const [modal, setModal] = useState(null)
   const [formCrud, setFormCrud] = useState({})
 
-  const [formBusqueda, setFormBusqueda] = useState(formVacio(columnas))
+  const [formBusqueda, setFormBusqueda] = useState(formVacio(columnasOriginales))
   const [filtrosActivos, setFiltrosActivos] = useState(false)
   const [busquedaRapida, setBusquedaRapida] = useState('')
 
+  // 1. Efecto dedicado exclusivamente a cargar los catálogos del select
+  useEffect(() => {
+    let activo = true;
+
+    const cargarCatalogosVehiculos = async () => {
+      if (endpoint !== 'vehiculos') {
+        setColumnasDinamicas(columnasOriginales);
+        return;
+      }
+
+      try {
+        const selectsAFiltrar = columnasOriginales.filter(c => c.tipo === 'select');
+        
+        const promesas = selectsAFiltrar.map(col => {
+          const conf = ENDPOINTS_SELECTS[col.key];
+          if (!conf) return Promise.resolve(null);
+          
+          return api.get(conf.url).then(res => ({
+            key: col.key,
+            opciones: (Array.isArray(res.data) ? res.data : []).map(item => ({
+              value: Number(item[conf.propId] || item.id),
+              label: item[conf.propLabel] || item.descripcion || item.marca || item.estado || item.tipo
+            }))
+          })).catch(() => null);
+        });
+
+        const resultados = await Promise.all(promesas);
+
+        if (!activo) return;
+
+        const columnasConDataReal = columnasOriginales.map(col => {
+          const resMatch = resultados.find(r => r && r.key === col.key);
+          if (resMatch) {
+            return { ...col, opciones: resMatch.opciones };
+          }
+          return col;
+        });
+
+        setColumnasDinamicas(columnasConDataReal);
+      } catch (err) {
+        console.error("Error cargando los catálogos dinámicos:", err);
+      }
+    };
+
+    cargarCatalogosVehiculos();
+
+    return () => { activo = false; };
+  }, [endpoint, columnasOriginales]);
+
+
+  // 2. Cargar datos puros de la entidad sin procesar el "aplanado" con columnas dinámicas cambiantes
   const cargar = useCallback(async (silencioso = false) => {
     if (!silencioso) setCargando(true)
     try {
@@ -67,13 +125,14 @@ export default function TablaPage({ configTabla }) {
       }
 
       const dataAdaptada = normalizar ? rawData.map(normalizar) : rawData
-      setFilas(dataAdaptada.map(f => aplanarFila(f, columnas)))
+      setFilasRaw(dataAdaptada); // 👈 Guardamos la data adaptada limpia
     } catch (err) {
       console.error("Error al cargar:", err)
     } finally {
       if (!silencioso) setCargando(false)
     }
-  }, [endpoint, columnas, normalizar])
+  }, [endpoint, normalizar]) // 👈 quitamos la dependencia problemática de columnasDinamicas
+
 
   useEffect(() => {
     cargar()
@@ -87,20 +146,24 @@ export default function TablaPage({ configTabla }) {
   }, [cargar, modal])
 
 
+  // 3. 🧠 LA CLAVE: El aplanado de filas se calcula dinámicamente en tiempo de renderizado
+  // usando la última versión estable de columnasDinamicas.
+  const filas = filasRaw.map(f => aplanarFila(f, columnasDinamicas));
+
   const manejarCambioInput = (e, setEstado) => {
     const { name, value } = e.target;
     setEstado(prev => ({ ...prev, [name]: value }));
   };
 
   const abrirCrear = () => {
-    setFormCrud(formVacio(columnas))
+    setFormCrud(formVacio(columnasDinamicas))
     setModal('crear')
   }
 
   const abrirEditar = (filaAplanada) => {
     const original = filas.find(f => String(f[pk]) === String(filaAplanada[pk]))
     const inicial = {}
-    columnas.forEach(c => {
+    columnasDinamicas.forEach(c => {
       if (!c.key.startsWith('_')) inicial[c.key] = original[c.key] ?? ''
     })
     setFormCrud(inicial)
@@ -110,24 +173,15 @@ export default function TablaPage({ configTabla }) {
   const guardar = async () => {
     try {
       const payload = desnormalizar ? desnormalizar(formCrud) : formCrud;
-      console.log("🚀 PAYLOAD FINAL QUE VA AL SERVIDOR:", payload);
 
       if (payload.persona) {
-        // Extraemos dinámicamente el teléfono capturado desde el formulario original (formCrud)
         const telefonoFrontend = formCrud.codigo_telefono ? String(formCrud.codigo_telefono) : '';
-
-        // Calcular el código de la relación intermedia teléfono
         const codigoTelefonoCalculado = payload.id
           ? Number(payload.id.toString().slice(-6))
           : Math.floor(100000 + Math.random() * 900000);
 
         const fechaActual = new Date().toISOString().split('T')[0];
-
-        // CORRECCIÓN: Ahora toma el valor real que viene de los inputs de tu formulario
-        const payloadTelefono = {
-          codigo: codigoTelefonoCalculado,
-          numero: telefonoFrontend // <-- Eliminado el "3000000000" fijo
-        };
+        const payloadTelefono = { codigo: codigoTelefonoCalculado, numero: telefonoFrontend };
 
         const personaPayload = {
           id: Number(payload.id),
@@ -139,41 +193,21 @@ export default function TablaPage({ configTabla }) {
           email: payload.persona.correo,
           username: payload.persona.username,
           password: payload.persona.password || 'MoviBusAdmin2026*',
-          // CORRECCIÓN: Toma la fecha de nacimiento que el usuario seleccionó en el formulario
           fechaNacimiento: formCrud.fecha_nacimiento || fechaActual, 
           fechaRegistro: formCrud.fecha_registro || fechaActual,
           estado: Number(formCrud.estado || 1),
-
           codigoTelefono: codigoTelefonoCalculado,
-          telefono: {
-            codigo: codigoTelefonoCalculado
-          },
-
+          telefono: { codigo: codigoTelefonoCalculado },
           codigoDocumento: Number(formCrud.codigo_tipo_documento || 1),
           codigoTipoDocumento: Number(formCrud.codigo_tipo_documento || 1),
-          documento: {
-            codigo: Number(formCrud.codigo_tipo_documento || 1)
-          }
+          documento: { codigo: Number(formCrud.codigo_tipo_documento || 1) }
         };
 
         if (modal === 'editar') {
-          try {
-            await api.put('/personas', personaPayload);
-          } catch (errPersona) {
-            console.warn("No se pudo actualizar la persona en /personas:", errPersona);
-          }
+          try { await api.put('/personas', personaPayload); } catch (errPersona) { console.warn(errPersona); }
         } else {
-          try {
-            await api.post('/telefonos', payloadTelefono);
-          } catch (errTel) {
-            console.warn("El teléfono podría ya existir, continuando...", errTel);
-          }
-
-          try {
-            await api.post('/personas', personaPayload);
-          } catch (errPersona) {
-            console.warn("La persona podría ya existir, continuando...", errPersona);
-          }
+          try { await api.post('/telefonos', payloadTelefono); } catch (errTel) { console.warn(errTel); }
+          try { await api.post('/personas', personaPayload); } catch (errPersona) { console.warn(errPersona); }
         }
       }
 
@@ -200,7 +234,7 @@ export default function TablaPage({ configTabla }) {
   }
 
   let filasMostrar = filtrosActivos
-    ? filas.filter(f => columnas.every(col => {
+    ? filas.filter(f => columnasDinamicas.every(col => {
       const val = formBusqueda[col.key];
       return !val || String(f[col.key] ?? '').toLowerCase().includes(String(val).toLowerCase());
     }))
@@ -216,10 +250,7 @@ export default function TablaPage({ configTabla }) {
   return (
     <div className="tabla-page">
       <div className="tabla-toolbar">
-        <button
-          className="btn-busqueda"
-          onClick={() => setModal('buscar')}
-        >
+        <button className="btn-busqueda" onClick={() => setModal('buscar')}>
           🔍 Búsqueda avanzada
         </button>
         <input
@@ -232,7 +263,7 @@ export default function TablaPage({ configTabla }) {
       </div>
 
       <DataTable
-        columnas={columnas}
+        columnas={columnasDinamicas}
         filas={filasMostrar}
         onEditar={abrirEditar}
         onEliminar={eliminar}
@@ -242,7 +273,7 @@ export default function TablaPage({ configTabla }) {
       {(modal === 'crear' || modal === 'editar') && (
         <CrudModal
           titulo={modal === 'editar' ? 'Editar Registro' : 'Nuevo Registro'}
-          columnas={columnas.filter(c => !c.key.startsWith('_'))}
+          columnas={columnasDinamicas.filter(c => !c.key.startsWith('_'))}
           form={formCrud}
           onChange={e => manejarCambioInput(e, setFormCrud)}
           onGuardar={guardar}
@@ -252,7 +283,7 @@ export default function TablaPage({ configTabla }) {
 
       {modal === 'buscar' && (
         <SearchModal
-          columnas={columnas.filter(c => !c.key.startsWith('_'))}
+          columnas={columnasDinamicas.filter(c => !c.key.startsWith('_'))}
           form={formBusqueda}
           onChange={e => manejarCambioInput(e, setFormBusqueda)}
           onBuscar={() => { setFiltrosActivos(true); setModal(null); }}
