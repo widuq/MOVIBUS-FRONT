@@ -22,32 +22,70 @@ function formVacio(columnas) {
 export default function TablaPage({ configTabla }) {
   const { endpoint, columnas = [], pk, normalizar, desnormalizar } = configTabla
 
-  const [filas, setFilas] = useState([]) 
+  const [filas, setFilas] = useState([])
   const [cargando, setCargando] = useState(true)
   const [modal, setModal] = useState(null)
   const [formCrud, setFormCrud] = useState({})
-  
+
   const [formBusqueda, setFormBusqueda] = useState(formVacio(columnas))
   const [filtrosActivos, setFiltrosActivos] = useState(false)
   const [busquedaRapida, setBusquedaRapida] = useState('')
 
-  const cargar = useCallback(async () => {
-    setCargando(true)
+  const cargar = useCallback(async (silencioso = false) => {
+    if (!silencioso) setCargando(true)
     try {
       const res = await api.get(`/${endpoint}`)
-      const rawData = Array.isArray(res.data) ? res.data : []
-      
-      // 1. AQUI USAMOS SU NORMALIZAR MANUAL
+      let rawData = Array.isArray(res.data) ? res.data : []
+
+      if (endpoint === 'administradores') {
+        try {
+          const resPersonas = await api.get('/personas')
+          const personas = Array.isArray(resPersonas.data) ? resPersonas.data : []
+          rawData = rawData.map(admin => {
+            const personaMatch = personas.find(p => String(p.id) === String(admin.id))
+            return {
+              ...admin,
+              persona: personaMatch ? {
+                primerNombre: personaMatch.primerNombre,
+                segundoNombre: personaMatch.segundoNombre,
+                primerApellido: personaMatch.primerApellido,
+                segundoApellido: personaMatch.segundoApellido,
+                correo: personaMatch.correo,
+                username: personaMatch.username,
+                password: personaMatch.password,
+                fechaNacimiento: personaMatch.fechaNacimiento,
+                fechaRegistro: personaMatch.fechaRegistro,
+                estado: personaMatch.estado,
+                telefono: personaMatch.telefono ? { codigo: personaMatch.telefono.codigo ?? personaMatch.telefono } : undefined,
+                documento: personaMatch.documento ? { codigo: personaMatch.documento.codigo ?? personaMatch.documento } : undefined
+              } : null
+            }
+          })
+        } catch (errPersona) {
+          console.error("Error al cruzar personas en el frontend:", errPersona)
+        }
+      }
+
       const dataAdaptada = normalizar ? rawData.map(normalizar) : rawData
       setFilas(dataAdaptada.map(f => aplanarFila(f, columnas)))
     } catch (err) {
       console.error("Error al cargar:", err)
     } finally {
-      setCargando(false)
+      if (!silencioso) setCargando(false)
     }
   }, [endpoint, columnas, normalizar])
 
-  useEffect(() => { cargar() }, [cargar])
+  useEffect(() => {
+    cargar()
+    if (modal !== null) return
+
+    const intervalo = setInterval(() => {
+      cargar(true)
+    }, 5000)
+
+    return () => clearInterval(intervalo)
+  }, [cargar, modal])
+
 
   const manejarCambioInput = (e, setEstado) => {
     const { name, value } = e.target;
@@ -69,29 +107,87 @@ export default function TablaPage({ configTabla }) {
     setModal('editar')
   }
 
-  /**
-   * GUARDAR: El punto donde MoviBus recibe los datos.
-   */
   const guardar = async () => {
     try {
-      // 2. AQUI USAMOS SU DESNORMALIZAR MANUAL
-      // Si no existe, enviamos el form tal cual (pero ya vimos que sí existe)
       const payload = desnormalizar ? desnormalizar(formCrud) : formCrud;
-
       console.log("🚀 PAYLOAD FINAL QUE VA AL SERVIDOR:", payload);
+
+      if (payload.persona) {
+        // Extraemos dinámicamente el teléfono capturado desde el formulario original (formCrud)
+        const telefonoFrontend = formCrud.codigo_telefono ? String(formCrud.codigo_telefono) : '';
+
+        // Calcular el código de la relación intermedia teléfono
+        const codigoTelefonoCalculado = payload.id
+          ? Number(payload.id.toString().slice(-6))
+          : Math.floor(100000 + Math.random() * 900000);
+
+        const fechaActual = new Date().toISOString().split('T')[0];
+
+        // CORRECCIÓN: Ahora toma el valor real que viene de los inputs de tu formulario
+        const payloadTelefono = {
+          codigo: codigoTelefonoCalculado,
+          numero: telefonoFrontend // <-- Eliminado el "3000000000" fijo
+        };
+
+        const personaPayload = {
+          id: Number(payload.id),
+          primerNombre: payload.persona.primerNombre,
+          segundoNombre: payload.persona.segundoNombre || '',
+          primerApellido: payload.persona.primerApellido,
+          segundoApellido: payload.persona.segundoApellido,
+          correo: payload.persona.correo,
+          email: payload.persona.correo,
+          username: payload.persona.username,
+          password: payload.persona.password || 'MoviBusAdmin2026*',
+          // CORRECCIÓN: Toma la fecha de nacimiento que el usuario seleccionó en el formulario
+          fechaNacimiento: formCrud.fecha_nacimiento || fechaActual, 
+          fechaRegistro: formCrud.fecha_registro || fechaActual,
+          estado: Number(formCrud.estado || 1),
+
+          codigoTelefono: codigoTelefonoCalculado,
+          telefono: {
+            codigo: codigoTelefonoCalculado
+          },
+
+          codigoDocumento: Number(formCrud.codigo_tipo_documento || 1),
+          codigoTipoDocumento: Number(formCrud.codigo_tipo_documento || 1),
+          documento: {
+            codigo: Number(formCrud.codigo_tipo_documento || 1)
+          }
+        };
+
+        if (modal === 'editar') {
+          try {
+            await api.put('/personas', personaPayload);
+          } catch (errPersona) {
+            console.warn("No se pudo actualizar la persona en /personas:", errPersona);
+          }
+        } else {
+          try {
+            await api.post('/telefonos', payloadTelefono);
+          } catch (errTel) {
+            console.warn("El teléfono podría ya existir, continuando...", errTel);
+          }
+
+          try {
+            await api.post('/personas', personaPayload);
+          } catch (errPersona) {
+            console.warn("La persona podría ya existir, continuando...", errPersona);
+          }
+        }
+      }
 
       if (modal === 'editar') {
         await api.put(`/${endpoint}`, payload);
       } else {
         await api.post(`/${endpoint}`, payload);
       }
-      
+
       setModal(null);
       cargar();
     } catch (err) {
-      // 3. LOG DE ERROR DETALLADO
       console.error("❌ ERROR DEL BACKEND:", err.response?.data || err);
-      alert(`Error: ${err.response?.data?.message || 'Verifica los campos obligatorios'}`);
+      alert(`Error: ${err.response?.data?.message || err.response?.data?.error || 'Verifica los campos obligatorios'}`);
     }
   };
 
@@ -103,12 +199,11 @@ export default function TablaPage({ configTabla }) {
     } catch (err) { alert('Error al eliminar') }
   }
 
-  // Lógica de filtros (simplificada para el ejemplo)
-  let filasMostrar = filtrosActivos 
+  let filasMostrar = filtrosActivos
     ? filas.filter(f => columnas.every(col => {
-        const val = formBusqueda[col.key];
-        return !val || String(f[col.key] ?? '').toLowerCase().includes(String(val).toLowerCase());
-      }))
+      const val = formBusqueda[col.key];
+      return !val || String(f[col.key] ?? '').toLowerCase().includes(String(val).toLowerCase());
+    }))
     : filas;
 
   if (busquedaRapida.trim()) {
@@ -121,19 +216,19 @@ export default function TablaPage({ configTabla }) {
   return (
     <div className="tabla-page">
       <div className="tabla-toolbar">
-          <button
-            className="btn-busqueda"
-            onClick={() => setModal('buscar')}
-          >
-            🔍 Búsqueda avanzada
-          </button>
-          <input
-            className="input-busqueda-rapida"
-            placeholder="Buscar en todo..."
-            value={busquedaRapida}
-            onChange={e => setBusquedaRapida(e.target.value)}
-          />
-          <button className="btn-crear" onClick={abrirCrear}>+ Nuevo</button>
+        <button
+          className="btn-busqueda"
+          onClick={() => setModal('buscar')}
+        >
+          🔍 Búsqueda avanzada
+        </button>
+        <input
+          className="input-busqueda-rapida"
+          placeholder="Buscar en todo..."
+          value={busquedaRapida}
+          onChange={e => setBusquedaRapida(e.target.value)}
+        />
+        <button className="btn-crear" onClick={abrirCrear}>+ Nuevo</button>
       </div>
 
       <DataTable

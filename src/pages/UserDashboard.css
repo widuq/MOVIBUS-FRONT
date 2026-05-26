@@ -1,0 +1,320 @@
+:root {
+  --movibus-red: #b94a4a;
+  --movibus-blue: #1e88e5;
+  --movibus-dark-blue: #1565c0;
+  --movibus-bg-light: #f5f5f5;
+  --movibus-gray-btn: #e0e0e0;
+}
+
+/* Layout Principal Web */
+.movibus-web-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- ESTILOS DEL SIDEBAR --- */
+.movibus-sidebar {
+  width: 360px;
+  min-width: 360px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid #e0e0e0;
+  box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+/* Avatar superior izquierdo */
+.sidebar-user-header {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: #fafafa;
+  gap: 12px;
+}
+
+.avatar-container {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 2px solid var(--movibus-red);
+  background-color: #d1e2f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+}
+
+.user-tag {
+  background-color: var(--movibus-red);
+  color: white;
+  padding: 6px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  position: relative;
+}
+
+/* Banner de Menú Principal (Rojo) */
+.sidebar-menu-banner {
+  background-color: var(--movibus-red);
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.sidebar-menu-banner h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+/* Lista de botones azules */
+.sidebar-nav-links {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-grow: 1;
+  overflow-y: auto;
+}
+
+.nav-item-btn {
+  display: flex;
+  align-items: center;
+  background-color: var(--movibus-blue);
+  color: white;
+  border: none;
+  padding: 14px 18px;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.nav-item-btn:hover {
+  background-color: var(--movibus-dark-blue);
+}
+
+.nav-icon {
+  margin-right: 15px;
+  flex-shrink: 0;
+}
+
+.nav-item-btn .arrow {
+  margin-left: auto;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+/* Tabs inferiores del Sidebar (Muñeco, Mapa, Tuerca) */
+.sidebar-footer-tabs {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-top: 1px solid #e0e0e0;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  color: #757575;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.tab-btn:hover, .tab-btn.active {
+  color: var(--movibus-red);
+  background-color: #f0f0f0;
+}
+
+/* Botón central del mapa (Redondo y destacado como el mock) */
+.central-map-btn {
+  background-color: var(--movibus-red) !important;
+  color: white !important;
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(185, 74, 74, 0.4);
+}
+
+.central-map-btn:hover {
+  transform: scale(1.05);
+}
+
+/* --- CONTENIDO PRINCIPAL (MAPA) --- */
+.movibus-main-content {
+  flex-grow: 1;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+/* Contenedor flotante encima del mapa */
+.map-overlay-container {
+  width: 100%;
+  max-width: 650px;
+  z-index: 10;
+}
+
+/* Estilo Glassmorphism para las tarjetas sobre el mapa */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.glass-panel h2 {
+  color: #333;
+  margin-top: 0;
+  border-bottom: 2px solid var(--movibus-red);
+  padding-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+/* Tarjeta de bienvenida */
+.welcome-card {
+  background: #e3f2fd;
+  border-left: 5px solid var(--movibus-blue);
+  padding: 15px 20px;
+  border-radius: 4px;
+  margin-top: 15px;
+}
+
+.welcome-card h3 {
+  margin: 0 0 5px 0;
+  color: var(--movibus-dark-blue);
+}
+
+.welcome-card p {
+  margin: 0;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+/* Cajas de información */
+.info-box {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 15px;
+}
+
+.info-box h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.no-routes {
+  color: #757575;
+  font-style: italic;
+  margin: 0;
+}
+
+/* --- SECCIÓN DE CONFIGURACIÓN (MOCKUP 3) --- */
+.settings-banner-header {
+  background-color: var(--movibus-red);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.settings-banner-header h3 {
+  margin: 0;
+}
+
+.settings-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background-color: var(--movibus-gray-btn);
+  padding: 14px 20px;
+  border-radius: 25px; /* Bordes redondeados como la imagen */
+  color: #333;
+  font-size: 0.95rem;
+  border: none;
+  text-align: left;
+}
+
+.text-red {
+  color: var(--movibus-red);
+}
+
+/* Botón interactivo de Cerrar Sesión */
+.btn-logout-action {
+  background-color: #faebee;
+  color: var(--movibus-red);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px dashed var(--movibus-red);
+}
+
+.btn-logout-action:hover {
+  background-color: var(--movibus-red);
+  color: white;
+}
+
+/* Panel de perfil extendido */
+.profile-details {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.profile-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #f0f0f0;
+  border: 3px solid var(--movibus-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+}
+
+.profile-details .info-box {
+  flex-grow: 1;
+  margin-top: 0;
+}
+
+.mt-4 { margin-top: 20px; }
+
+/* Animación de entrada suave */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

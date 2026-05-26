@@ -1,9 +1,9 @@
 // config/tablasConfig.js
 
 export const tablasConfig = {
-  
 
-viajes: {
+
+  viajes: {
     label: 'Viajes',
     endpoint: 'viajes',
     pk: 'id',
@@ -14,7 +14,7 @@ viajes: {
       { key: 'valorPagado', label: 'VALOR', tipo: 'number', requerido: true },
       { key: 'origen', label: 'ORIGEN', tipo: 'text', requerido: true },
       { key: 'destino', label: 'DESTINO', tipo: 'text', requerido: true },
-      
+
       // CORRECCIÓN: Ahora es un select y lee directo de la variable plana normalizada
       {
         key: 'codigo_estado_viaje',
@@ -29,10 +29,10 @@ viajes: {
         ],
         aplanar: (v) => v._estado_txt || '—'
       },
-      
+
       { key: 'codigo_pasajero', label: 'ID PASAJERO', tipo: 'number', requerido: true },
       { key: 'codigo_recorrido', label: 'ID RECORRIDO', tipo: 'number', requerido: true },
-      
+
       // Columna de solo lectura para soporte en el listado si se requiere
       {
         key: '_estado_txt',
@@ -53,7 +53,7 @@ viajes: {
       codigo_estado_viaje: v.estadoViaje?.codigo || v.codigoEstadoViaje || v.codigo_estado_viaje || '',
       codigo_pasajero: v.pasajero?.id || v.codigoPasajero || v.codigo_pasajero || '',
       codigo_recorrido: v.recorrido?.id || v.codigoRecorrido || v.codigo_recorrido || '',
-      
+
       // CORRECCIÓN: Guardamos el texto plano aquí buscando las variantes del objeto Java
       _estado_txt: v.estadoViaje?.estado || v.estadoViaje?.nombre || v.estadoViaje?.descripcion || ''
     }),
@@ -72,277 +72,277 @@ viajes: {
   },
 
   incidentes: {
-        label: 'Incidentes',
-        endpoint: 'incidentes',
-        pk: 'codigo',
+    label: 'Incidentes',
+    endpoint: 'incidentes',
+    pk: 'codigo',
 
-        columnas: [
-            {
-                key: 'codigo',
-                label: 'CODIGO',
-                tipo: 'number'
-            },
-            {
-                key: 'fecha',
-                label: 'FECHA',
-                tipo: 'date'
-            },
-            // Al editar se convierte en Select, al listar muestra el texto aplanado
-            {
-                key: 'codigo_estado_incidente',
-                label: 'ESTADO',
-                tipo: 'select',
-                opciones: [
-                    { value: 1, label: 'Activo' },
-                    { value: 2, label: 'Finalizado' }
-                    
-                ],
-                aplanar: (i) => i._estado_txt || '—'
-            },
-            // Al editar se convierte en Select, al listar muestra el texto aplanado
-            {
-                key: 'codigo_tipo_evento',
-                label: 'EVENTO',
-                tipo: 'select',
-                opciones: [
-                    { value: 1, label: 'Accidente de Tránsito' },
-                    { value: 2, label: 'Falla Mecánica' },
-                    { value: 3, label: 'Retraso por congestión vehicular' }
-                ],
-                aplanar: (i) => i._evento_txt || '—'
-            },
-            {
-                key: 'codigo_ubicacion_incidente',
-                label: 'UBICACION',
-                tipo: 'number' // Puedes cambiarlo a select si creas opciones de zonas/paradas
-            },
-            {
-                key: 'descripcion',
-                label: 'DESCRIPCION',
-                tipo: 'text'
-            },
-            // Columnas de solo lectura por si el componente requiere los campos de texto explícitos
-            {
-                key: '_estado_txt',
-                label: 'ESTADO (TXT)',
-                tipo: 'text',
-                soloLectura: true,
-                aplanar: (i) => i._estado_txt || '—'
-            }
+    columnas: [
+      {
+        key: 'codigo',
+        label: 'CODIGO',
+        tipo: 'number'
+      },
+      {
+        key: 'fecha',
+        label: 'FECHA',
+        tipo: 'date'
+      },
+      // Al editar se convierte en Select, al listar muestra el texto aplanado
+      {
+        key: 'codigo_estado_incidente',
+        label: 'ESTADO',
+        tipo: 'select',
+        opciones: [
+          { value: 1, label: 'Activo' },
+          { value: 2, label: 'Finalizado' }
+
         ],
+        aplanar: (i) => i._estado_txt || '—'
+      },
+      // Al editar se convierte en Select, al listar muestra el texto aplanado
+      {
+        key: 'codigo_tipo_evento',
+        label: 'EVENTO',
+        tipo: 'select',
+        opciones: [
+          { value: 1, label: 'Accidente de Tránsito' },
+          { value: 2, label: 'Falla Mecánica' },
+          { value: 3, label: 'Retraso por congestión vehicular' }
+        ],
+        aplanar: (i) => i._evento_txt || '—'
+      },
+      {
+        key: 'codigo_ubicacion_incidente',
+        label: 'UBICACION',
+        tipo: 'number' // Puedes cambiarlo a select si creas opciones de zonas/paradas
+      },
+      {
+        key: 'descripcion',
+        label: 'DESCRIPCION',
+        tipo: 'text'
+      },
+      // Columnas de solo lectura por si el componente requiere los campos de texto explícitos
+      {
+        key: '_estado_txt',
+        label: 'ESTADO (TXT)',
+        tipo: 'text',
+        soloLectura: true,
+        aplanar: (i) => i._estado_txt || '—'
+      }
+    ],
 
-        normalizar: (i) => {
-            // Log para ver en la consola del navegador qué está mandando el backend exactamente
-            console.log("Datos del incidente recibido:", i);
-            
-            return {
-                codigo: i.codigo,
-                fecha: i.fecha,
-                codigo_estado_incidente: i.estadoIncidente?.codigo || '',
-                codigo_tipo_evento: i.evento?.codigo || '',
-                codigo_ubicacion_incidente: i.ubicacionIncidente?.codigo || '',
-                descripcion: i.descripcion,
-                
-                _estado_txt: i.estadoIncidente?.estado || '',
-                
-                // INTENTA LEER TODAS LAS VARIANTES POSIBLES DEL STRING:
-                _evento_txt: 
-                    i.evento?.nombre || 
-                    i.evento?.descripcion || 
-                    i.evento?.evento || 
-                    i.evento?.tipoEvento || 
-                    i.evento?.tipo ||
-                    ''
-            };
-        },
+    normalizar: (i) => {
+      // Log para ver en la consola del navegador qué está mandando el backend exactamente
+      console.log("Datos del incidente recibido:", i);
 
-        desnormalizar: (form) => ({
-            codigo: Number(form.codigo),
-            fecha: form.fecha,
-            codigoEstadoIncidente: Number(form.codigo_estado_incidente),
-            codigoTipoEvento: Number(form.codigo_tipo_evento),
-            codigoUbicacionIncidente: Number(form.codigo_ubicacion_incidente),
-            descripcion: form.descripcion
-        })
+      return {
+        codigo: i.codigo,
+        fecha: i.fecha,
+        codigo_estado_incidente: i.estadoIncidente?.codigo || '',
+        codigo_tipo_evento: i.evento?.codigo || '',
+        codigo_ubicacion_incidente: i.ubicacionIncidente?.codigo || '',
+        descripcion: i.descripcion,
+
+        _estado_txt: i.estadoIncidente?.estado || '',
+
+        // INTENTA LEER TODAS LAS VARIANTES POSIBLES DEL STRING:
+        _evento_txt:
+          i.evento?.nombre ||
+          i.evento?.descripcion ||
+          i.evento?.evento ||
+          i.evento?.tipoEvento ||
+          i.evento?.tipo ||
+          ''
+      };
     },
-personas: {
+
+    desnormalizar: (form) => ({
+      codigo: Number(form.codigo),
+      fecha: form.fecha,
+      codigoEstadoIncidente: Number(form.codigo_estado_incidente),
+      codigoTipoEvento: Number(form.codigo_tipo_evento),
+      codigoUbicacionIncidente: Number(form.codigo_ubicacion_incidente),
+      descripcion: form.descripcion
+    })
+  },
+  personas: {
     label: 'Personas',
     endpoint: 'personas',
     pk: 'id',
 
     columnas: [
-        { key: 'id', label: 'ID', tipo: 'number' },
-        { key: 'primer_nombre', label: 'PRIMER NOMBRE', tipo: 'text' },
-        { key: 'segundo_nombre', label: 'SEGUNDO NOMBRE', tipo: 'text' },
-        { key: 'primer_apellido', label: 'PRIMER APELLIDO', tipo: 'text' },
-        { key: 'segundo_apellido', label: 'SEGUNDO APELLIDO', tipo: 'text' },
-        { key: 'correo', label: 'CORREO', tipo: 'text' },
-        { key: 'username', label: 'USERNAME', tipo: 'text' },
-        { key: 'password', label: 'CONTRASEÑA', tipo: 'text' },
-        { key: 'fecha_nacimiento', label: 'F. NACIMIENTO', tipo: 'date' },
-        { key: 'fecha_registro', label: 'F. REGISTRO', tipo: 'date' },
-        { key: 'estado', label: 'ESTADO', tipo: 'number' },
-        { key: 'codigo_telefono', label: 'ID TELÉFONO', tipo: 'number' },
-        { key: 'codigo_tipo_documento', label: 'ID TIPO DOC', tipo: 'number' }
+      { key: 'id', label: 'ID', tipo: 'number' },
+      { key: 'primer_nombre', label: 'PRIMER NOMBRE', tipo: 'text' },
+      { key: 'segundo_nombre', label: 'SEGUNDO NOMBRE', tipo: 'text' },
+      { key: 'primer_apellido', label: 'PRIMER APELLIDO', tipo: 'text' },
+      { key: 'segundo_apellido', label: 'SEGUNDO APELLIDO', tipo: 'text' },
+      { key: 'correo', label: 'CORREO', tipo: 'text' },
+      { key: 'username', label: 'USERNAME', tipo: 'text' },
+      { key: 'password', label: 'CONTRASEÑA', tipo: 'text' },
+      { key: 'fecha_nacimiento', label: 'F. NACIMIENTO', tipo: 'date' },
+      { key: 'fecha_registro', label: 'F. REGISTRO', tipo: 'date' },
+      { key: 'estado', label: 'ESTADO', tipo: 'number' },
+      { key: 'codigo_telefono', label: 'ID TELÉFONO', tipo: 'number' },
+      { key: 'codigo_tipo_documento', label: 'ID TIPO DOC', tipo: 'number' }
     ],
 
     normalizar: (p) => ({
-        id: p.id,
-        primer_nombre: p.primerNombre || '',
-        segundo_nombre: p.segundoNombre || '',
-        primer_apellido: p.primerApellido || '',
-        segundo_apellido: p.segundoApellido || '',
-        correo: p.correo || '',
-        username: p.username || '',
-        password: p.password || '',
-        fecha_nacimiento: p.fechaNacimiento || '',
-        fecha_registro: p.fechaRegistro || '',
-        estado: p.estado !== undefined ? p.estado : 1,
-        // Alivio de fallos: si no viene el objeto relación, saca la propiedad plana de la query nativa
-        codigo_telefono: p.telefono?.codigo || p.codigoTelefono || '',
-        codigo_tipo_documento: p.documento?.codigo || p.codigoTipoDocumento || ''
+      id: p.id,
+      primer_nombre: p.primerNombre || '',
+      segundo_nombre: p.segundoNombre || '',
+      primer_apellido: p.primerApellido || '',
+      segundo_apellido: p.segundoApellido || '',
+      correo: p.correo || '',
+      username: p.username || '',
+      password: p.password || '',
+      fecha_nacimiento: p.fechaNacimiento || '',
+      fecha_registro: p.fechaRegistro || '',
+      estado: p.estado !== undefined ? p.estado : 1,
+      // Alivio de fallos: si no viene el objeto relación, saca la propiedad plana de la query nativa
+      codigo_telefono: p.telefono?.codigo || p.codigoTelefono || '',
+      codigo_tipo_documento: p.documento?.codigo || p.codigoTipoDocumento || ''
     }),
 
     desnormalizar: (form) => ({
-        id: form.id ? Number(form.id) : null,
-        primerNombre: form.primer_nombre,
-        segundoNombre: form.segundo_nombre,
-        primerApellido: form.primer_apellido,
-        segundoApellido: form.segundo_apellido,
-        correo: form.correo,
-        username: form.username,
-        password: form.password,
-        fechaNacimiento: form.fecha_nacimiento || null,
-        fechaRegistro: form.fecha_registro || null,
-        estado: Number(form.estado || 1),
-        codigoTelefono: form.codigo_telefono ? Number(form.codigo_telefono) : null,
-        codigoDocumento: form.codigo_tipo_documento ? Number(form.codigo_tipo_documento) : null
+      id: form.id ? Number(form.id) : null,
+      primerNombre: form.primer_nombre,
+      segundoNombre: form.segundo_nombre,
+      primerApellido: form.primer_apellido,
+      segundoApellido: form.segundo_apellido,
+      correo: form.correo,
+      username: form.username,
+      password: form.password,
+      fechaNacimiento: form.fecha_nacimiento || null,
+      fechaRegistro: form.fecha_registro || null,
+      estado: Number(form.estado || 1),
+      codigoTelefono: form.codigo_telefono ? Number(form.codigo_telefono) : null,
+      codigoDocumento: form.codigo_tipo_documento ? Number(form.codigo_tipo_documento) : null
     })
-},
+  },
 
-pasajeros: {
+  pasajeros: {
     label: 'Pasajeros',
     endpoint: 'pasajeros',
     pk: 'id',
 
     columnas: [
-        {
-            key: 'id',
-            label: 'ID',
-            tipo: 'number'
-        },
+      {
+        key: 'id',
+        label: 'ID',
+        tipo: 'number'
+      },
 
-        {
-            key: 'primer_nombre',
-            label: 'PRIMER NOMBRE',
-            tipo: 'text'
-        },
+      {
+        key: 'primer_nombre',
+        label: 'PRIMER NOMBRE',
+        tipo: 'text'
+      },
 
-        {
-            key: 'segundo_nombre',
-            label: 'SEGUNDO NOMBRE',
-            tipo: 'text'
-        },
+      {
+        key: 'segundo_nombre',
+        label: 'SEGUNDO NOMBRE',
+        tipo: 'text'
+      },
 
-        {
-            key: 'primer_apellido',
-            label: 'PRIMER APELLIDO',
-            tipo: 'text'
-        },
+      {
+        key: 'primer_apellido',
+        label: 'PRIMER APELLIDO',
+        tipo: 'text'
+      },
 
-        {
-            key: 'segundo_apellido',
-            label: 'SEGUNDO APELLIDO',
-            tipo: 'text'
-        },
+      {
+        key: 'segundo_apellido',
+        label: 'SEGUNDO APELLIDO',
+        tipo: 'text'
+      },
 
-        {
-            key: 'correo',
-            label: 'CORREO',
-            tipo: 'text'
-        },
+      {
+        key: 'correo',
+        label: 'CORREO',
+        tipo: 'text'
+      },
 
-        {
-            key: 'username',
-            label: 'USERNAME',
-            tipo: 'text'
-        },
+      {
+        key: 'username',
+        label: 'USERNAME',
+        tipo: 'text'
+      },
 
-        {
-            key: '_metodo_pago_txt',
-            label: 'METODO PAGO',
-            tipo: 'text',
-            soloLectura: true
-        },
+      {
+        key: '_metodo_pago_txt',
+        label: 'METODO PAGO',
+        tipo: 'text',
+        soloLectura: true
+      },
 
-        {
-            key: 'codigo_tipo_tarifa',
-            label: 'TARIFA',
-            tipo: 'number',
-            aplanar: (p) => p._tarifa_txt || '—'
-        },
+      {
+        key: 'codigo_tipo_tarifa',
+        label: 'TARIFA',
+        tipo: 'number',
+        aplanar: (p) => p._tarifa_txt || '—'
+      },
 
-        {
-            key: '_tarifa_txt',
-            label: 'TARIFA TXT',
-            tipo: 'text',
-            soloLectura: true
-        }
+      {
+        key: '_tarifa_txt',
+        label: 'TARIFA TXT',
+        tipo: 'text',
+        soloLectura: true
+      }
     ],
 
     normalizar: (p) => ({
-        id: p.id,
+      id: p.id,
 
-        primer_nombre:
-            p.persona?.primerNombre || '',
+      primer_nombre:
+        p.persona?.primerNombre || '',
 
-        segundo_nombre:
-            p.persona?.segundoNombre || '',
+      segundo_nombre:
+        p.persona?.segundoNombre || '',
 
-        primer_apellido:
-            p.persona?.primerApellido || '',
+      primer_apellido:
+        p.persona?.primerApellido || '',
 
-        segundo_apellido:
-            p.persona?.segundoApellido || '',
+      segundo_apellido:
+        p.persona?.segundoApellido || '',
 
-        correo:
-            p.persona?.correo || '',
+      correo:
+        p.persona?.correo || '',
 
-        username:
-            p.persona?.username || '',
+      username:
+        p.persona?.username || '',
 
-        codigo_metodo_pago:
-            p.metodoPago?.codigo || '',
+      codigo_metodo_pago:
+        p.metodoPago?.codigo || '',
 
-        codigo_tipo_tarifa:
-            p.tarifa?.codigo || '',
+      codigo_tipo_tarifa:
+        p.tarifa?.codigo || '',
 
-        _metodo_pago_txt:
-            p.metodoPago?.metodo || '',
+      _metodo_pago_txt:
+        p.metodoPago?.metodo || '',
 
-        _tarifa_txt:
-            p.tarifa?.tipo || ''
+      _tarifa_txt:
+        p.tarifa?.tipo || ''
     }),
 
     desnormalizar: (form) => ({
-        id: Number(form.id),
+      id: Number(form.id),
 
-        persona: {
-            primerNombre: form.primer_nombre,
-            segundoNombre: form.segundo_nombre,
-            primerApellido: form.primer_apellido,
-            segundoApellido: form.segundo_apellido,
-            correo: form.correo,
-            username: form.username
-        },
+      persona: {
+        primerNombre: form.primer_nombre,
+        segundoNombre: form.segundo_nombre,
+        primerApellido: form.primer_apellido,
+        segundoApellido: form.segundo_apellido,
+        correo: form.correo,
+        username: form.username
+      },
 
-        codigoMetodoPago:
-            Number(form.codigo_metodo_pago),
+      codigoMetodoPago:
+        Number(form.codigo_metodo_pago),
 
-        codigoTarifa:
-            Number(form.codigo_tipo_tarifa)
+      codigoTarifa:
+        Number(form.codigo_tipo_tarifa)
     })
-},
+  },
 
 conductores: {
     label: 'Conductores',
@@ -350,118 +350,69 @@ conductores: {
     pk: 'id',
 
     columnas: [
-        {
-            key: 'id',
-            label: 'ID',
-            tipo: 'number'
-        },
-
-        {
-            key: 'primer_nombre',
-            label: 'PRIMER NOMBRE',
-            tipo: 'text'
-        },
-
-        {
-            key: 'segundo_nombre',
-            label: 'SEGUNDO NOMBRE',
-            tipo: 'text'
-        },
-
-        {
-            key: 'primer_apellido',
-            label: 'PRIMER APELLIDO',
-            tipo: 'text'
-        },
-
-        {
-            key: 'segundo_apellido',
-            label: 'SEGUNDO APELLIDO',
-            tipo: 'text'
-        },
-
-        {
-            key: 'correo',
-            label: 'CORREO',
-            tipo: 'text'
-        },
-
-        {
-            key: 'username',
-            label: 'USERNAME',
-            tipo: 'text'
-        },
-
-        {
-            key: 'experiencia',
-            label: 'EXPERIENCIA',
-            tipo: 'number'
-        },
-
-        {
-            key: 'codigo_vehiculo',
-            label: 'ID VEHICULO',
-            tipo: 'number'
-        },
-
-        {
-            key: '_vehiculo_txt',
-            label: 'PLACA VEHICULO',
-            tipo: 'text',
-            soloLectura: true
-        }
+      { key: 'id', label: 'ID (Cédula)', tipo: 'number' },
+      { key: 'primer_nombre', label: 'PRIMER NOMBRE', tipo: 'text' },
+      { key: 'segundo_nombre', label: 'SEGUNDO NOMBRE', tipo: 'text' },
+      { key: 'primer_apellido', label: 'PRIMER APELLIDO', tipo: 'text' },
+      { key: 'segundo_apellido', label: 'SEGUNDO APELLIDO', tipo: 'text' },
+      { key: 'correo', label: 'CORREO', tipo: 'text' },
+      { key: 'username', label: 'USERNAME', tipo: 'text' },
+      { key: 'password', label: 'CONTRASEÑA', tipo: 'text' }, 
+      { key: 'fecha_nacimiento', label: 'F. NACIMIENTO', tipo: 'date' },
+      { key: 'fecha_registro', label: 'F. REGISTRO', tipo: 'date' },
+      { key: 'experiencia', label: 'EXPERIENCIA', tipo: 'number' },
+      { key: 'codigo_vehiculo', label: 'ID VEHICULO', tipo: 'number' },
+      { key: '_vehiculo_txt', label: 'PLACA VEHICULO', tipo: 'text', soloLectura: true },
+      { key: 'estado', label: 'ESTADO', tipo: 'number' },
+      { key: 'codigo_telefono', label: 'TELÉFONO', tipo: 'text' }, // Cambiado a 'text' para el celular real
+      { key: 'codigo_tipo_documento', label: 'ID TIPO DOC', tipo: 'number' }
     ],
 
-    normalizar: (c) => ({
-        id: c.id,
-
-        primer_nombre:
-            c.persona?.primerNombre || '',
-
-        segundo_nombre:
-            c.persona?.segundoNombre || '',
-
-        primer_apellido:
-            c.persona?.primerApellido || '',
-
-        segundo_apellido:
-            c.persona?.segundoApellido || '',
-
-        correo:
-            c.persona?.correo || '',
-
-        username:
-            c.persona?.username || '',
-
-        experiencia:
-            c.experiencia || '',
-
-        codigo_vehiculo:
-            c.vehiculo?.codigo || '',
-
-        _vehiculo_txt:
-            c.vehiculo?.placa || ''
+    normalizar: (a) => ({
+      id: a.id,
+      primer_nombre: a.persona?.primerNombre || '',
+      segundo_nombre: a.persona?.segundoNombre || '',
+      primer_apellido: a.persona?.primerApellido || '',
+      segundo_apellido: a.persona?.segundoApellido || '',
+      correo: a.persona?.correo || '',
+      username: a.persona?.username || '',
+      password: a.persona?.password || '',
+      fecha_nacimiento: a.persona?.fechaNacimiento || '',
+      fecha_registro: a.fechaRegistro || '',
+      estado: a.estado !== undefined ? a.estado : 1,
+      codigo_telefono: a.persona?.telefono?.numero || a.persona?.telefono?.codigo || a.codigoTelefono || '',
+      codigo_tipo_documento: a.persona?.documento?.codigo || a.documento?.codigo || a.codigoTipoDocumento || '',
+      
+      // --- Ajustes específicos para Conductores ---
+      experiencia: a.experiencia || 0,
+      codigo_vehiculo: a.vehiculo?.codigo || a.codigoVehiculo || '',
+      _vehiculo_txt: a.vehiculo?.placa || a.vehiculo?.matricula || '' 
     }),
 
     desnormalizar: (form) => ({
-        id: Number(form.id),
-
-        persona: {
-            primerNombre: form.primer_nombre,
-            segundoNombre: form.segundo_nombre,
-            primerApellido: form.primer_apellido,
-            segundoApellido: form.segundo_apellido,
-            correo: form.correo,
-            username: form.username
-        },
-
-        experiencia:
-            Number(form.experiencia),
-
-        codigoVehiculo:
-            Number(form.codigo_vehiculo)
+      id: Number(form.id),
+      persona: {
+        primerNombre: form.primer_nombre,
+        segundoNombre: form.segundo_nombre || '',
+        primerApellido: form.primer_apellido,
+        segundoApellido: form.segundo_apellido,
+        correo: form.correo,
+        username: form.username,
+        // Evita pisar contraseñas vacías en edición
+        password: form.password && form.password.trim() !== '' ? form.password : 'MoviBusCond2026*', 
+        fechaNacimiento: form.fecha_nacimiento || null,
+        fechaRegistro: form.fecha_registro || new Date().toISOString().split('T')[0],
+        estado: Number(form.estado || 1),
+        // Lee directamente el input del teléfono sin meterle números fijos
+        numeroTelefono: form.codigo_telefono ? String(form.codigo_telefono) : (form.numero_telefono || ''),
+        tipoDocumento: Number(form.codigo_tipo_documento || 1)
+      },
+      
+      // --- Ajustes específicos para Conductores ---
+      experiencia: Number(form.experiencia || 0),
+      codigoVehiculo: form.codigo_vehiculo ? Number(form.codigo_vehiculo) : null
     })
-},
+  },
 
 administradores: {
     label: 'Administradores',
@@ -469,51 +420,77 @@ administradores: {
     pk: 'id',
 
     columnas: [
-        { key: 'id', label: 'ID (Cédula)', tipo: 'number' },
-        { key: 'primer_nombre', label: 'PRIMER NOMBRE', tipo: 'text' },
-        { key: 'segundo_nombre', label: 'SEGUNDO NOMBRE', tipo: 'text' },
-        { key: 'primer_apellido', label: 'PRIMER APELLIDO', tipo: 'text' },
-        { key: 'segundo_apellido', label: 'SEGUNDO APELLIDO', tipo: 'text' },
-        { key: 'correo', label: 'CORREO', tipo: 'text' },
-        { key: 'username', label: 'USERNAME', tipo: 'text' },
-        { key: 'password', label: 'CONTRASEÑA', tipo: 'text' }, // Añadido para la creación
-        { key: 'cargo', label: 'CARGO', tipo: 'text' },
-        { key: 'codigo_nivel_permiso', label: 'ID PERMISO', tipo: 'number' },
-        { key: '_nivel_permiso_txt', label: 'NIVEL PERMISO', tipo: 'text', soloLectura: true },
-        { key: 'codigo_administrador', label: 'ID JEFE', tipo: 'number' }
+      { key: 'id', label: 'ID (Cédula)', tipo: 'number' },
+      { key: 'primer_nombre', label: 'PRIMER NOMBRE', tipo: 'text' },
+      { key: 'segundo_nombre', label: 'SEGUNDO NOMBRE', tipo: 'text' },
+      { key: 'primer_apellido', label: 'PRIMER APELLIDO', tipo: 'text' },
+      { key: 'segundo_apellido', label: 'SEGUNDO APELLIDO', tipo: 'text' },
+      { key: 'correo', label: 'CORREO', tipo: 'text' },
+      { key: 'username', label: 'USERNAME', tipo: 'text' },
+      { key: 'password', label: 'CONTRASEÑA', tipo: 'text' },
+      { key: 'fecha_nacimiento', label: 'F. NACIMIENTO', tipo: 'date' },
+      { key: 'fecha_registro', label: 'F. REGISTRO', tipo: 'date' },
+      { key: 'estado', label: 'ESTADO', tipo: 'number' },
+      { key: 'codigo_telefono', label: 'TELÉFONO', tipo: 'text' }, 
+      
+      { key: 'codigo_tipo_documento', label: 'ID TIPO DOC', tipo: 'number' },
+      { key: 'cargo', label: 'CARGO', tipo: 'text' },
+      { key: 'codigo_nivel_permiso', label: 'ID PERMISO', tipo: 'number' },
+      { key: '_nivel_permiso_txt', label: 'NIVEL PERMISO', tipo: 'text', soloLectura: true },
+      { key: 'codigo_administrador', label: 'ID JEFE', tipo: 'number' }
     ],
 
     normalizar: (a) => ({
-        id: a.id,
-        primer_nombre: a.persona?.primerNombre || '',
-        segundo_nombre: a.persona?.segundoNombre || '',
-        primer_apellido: a.persona?.primerApellido || '',
-        segundo_apellido: a.persona?.segundoApellido || '',
-        correo: a.persona?.correo || '',
-        username: a.persona?.username || '',
-        password: '', // No se expone por seguridad en lecturas
-        cargo: a.cargo || '',
-        codigo_nivel_permiso: a.nivelPermiso?.codigo || '', 
-        _nivel_permiso_txt: a.nivelPermiso?.nombre || a.nivelPermiso?.descripcion || '',
-        codigo_administrador: a.administrador?.id || '' 
+      id: a.id,
+      primer_nombre: a.persona?.primerNombre || '',
+      segundo_nombre: a.persona?.segundoNombre || '',
+      primer_apellido: a.persona?.primerApellido || '',
+      segundo_apellido: a.persona?.segundoApellido || '',
+      correo: a.persona?.correo || '',
+      username: a.persona?.username || '',
+      password: a.persona?.password || '',
+      fecha_nacimiento: a.persona?.fechaNacimiento || '',
+      fecha_registro: a.fechaRegistro || '',
+      estado: a.estado !== undefined ? a.estado : 1,
+
+      // CORRECCIÓN AQUÍ: Agregamos todas las variantes posibles de donde el backend 
+      // de Administradores pueda estar guardando el string del número de celular real.
+      codigo_telefono: 
+        a.persona?.telefono?.numero || 
+        a.persona?.numeroTelefono || 
+        a.numeroTelefono || 
+        a.persona?.telefono?.codigo || 
+        a.codigoTelefono || 
+        '',
+
+      codigo_tipo_documento: a.persona?.documento?.codigo || a.documento?.codigo || a.codigoTipoDocumento || '',
+      cargo: a.cargo || '',
+      codigo_nivel_permiso: a.nivelPermiso?.codigo || '',
+      _nivel_permiso_txt: a.nivelPermiso?.nombre || a.nivelPermiso?.descripcion || '',
+      codigo_administrador: a.administrador?.id || ''
     }),
 
     desnormalizar: (form) => ({
-        id: Number(form.id),
-        persona: {
-            primerNombre: form.primer_nombre,
-            segundoNombre: form.segundo_nombre || '',
-            primerApellido: form.primer_apellido,
-            segundoApellido: form.segundo_apellido,
-            correo: form.correo,
-            username: form.username,
-            password: form.password || 'MoviBusAdmin2026*' // Contraseña temporal por defecto si no se digita
-        },
-        cargo: form.cargo,
-        codigoNivelPermiso: Number(form.codigo_nivel_permiso),
-        codigoAdministrador: form.codigo_administrador ? Number(form.codigo_administrador) : null
+      id: Number(form.id),
+      persona: {
+        primerNombre: form.primer_nombre,
+        segundoNombre: form.segundo_nombre || '',
+        primerApellido: form.primer_apellido,
+        segundoApellido: form.segundo_apellido,
+        correo: form.correo,
+        username: form.username,
+        password: form.password && form.password.trim() !== '' ? form.password : 'MoviBusAdmin2026*',
+        fechaNacimiento: form.fecha_nacimiento || null,
+        fechaRegistro: form.fecha_registro || new Date().toISOString().split('T')[0],
+        estado: Number(form.estado || 1),
+        numeroTelefono: form.codigo_telefono ? String(form.codigo_telefono) : (form.numero_telefono || ''),
+        tipoDocumento: Number(form.codigo_tipo_documento || 1)
+      },
+      cargo: form.cargo,
+      codigoNivelPermiso: form.codigo_nivel_permiso ? Number(form.codigo_nivel_permiso) : 1,
+      codigoAdministrador: form.codigo_administrador ? Number(form.codigo_administrador) : 1
     })
-},
+  },
 
   combustibles: {
     label: 'Combustibles',
@@ -603,7 +580,7 @@ administradores: {
       modelo: v.modelo,
       placa: v.placa,
       capacidad: v.capacidad,
-      
+
       codigo_estado_vehiculo: v.estadoVehiculo?.codigo || v.codigoEstadoVehiculo || '',
       codigo_marca: v.marca?.codigo || v.codigoMarca || '',
       codigo_tipo_combustible: v.combustible?.codigo || v.codigoTipoCombustible || '',
@@ -633,22 +610,22 @@ administradores: {
     pk: 'codigo',
 
     columnas: [
-        { key: 'codigo', label: 'CÓDIGO ID', tipo: 'number' },
-        { key: 'numero', label: 'NÚMERO DE TELÉFONO', tipo: 'text' }
+      { key: 'codigo', label: 'CÓDIGO ID', tipo: 'number' },
+      { key: 'numero', label: 'NÚMERO DE TELÉFONO', tipo: 'text' }
     ],
 
     // Convierte el formato que viene de Spring Boot (Java) al formato de tu interfaz (snake_case / plano)
     normalizar: (t) => ({
-        codigo: t.codigo,
-        numero: t.numero || ''
+      codigo: t.codigo,
+      numero: t.numero || ''
     }),
 
     // Convierte el estado de tus inputs/formularios al JSON exacto que espera recibir tu @RequestBody en Spring Boot
     desnormalizar: (form) => ({
-        codigo: form.codigo ? Number(form.codigo) : null,
-        numero: form.numero ? form.numero.toString() : ''
+      codigo: form.codigo ? Number(form.codigo) : null,
+      numero: form.numero ? form.numero.toString() : ''
     })
-}
+  }
 
 }; // <--- Aquí cierra el objeto tablasConfig completo
 

@@ -27,8 +27,8 @@ export default function CrudModal({
           <div className="form-grid">
 
             {columnas
-              // 1. MEJORA: Oculta automáticamente del formulario las variables de texto plano de la tabla
-              .filter(col => !col.key.startsWith('_')) 
+              // Oculta las columnas de solo lectura de texto y las marcadas solo para la tabla
+              .filter(col => !col.key.startsWith('_') && !col.soloTabla) 
               .map(col => (
                 <div className="form-field" key={col.key}>
 
